@@ -1,4 +1,4 @@
-﻿CREATE DATABASE QLMuaHang;
+CREATE DATABASE QLMuaHang;
 GO
 USE QLMuaHang;
 
@@ -63,21 +63,25 @@ INSERT INTO CUSTOMER VALUES
 INSERT INTO PRODUCT VALUES
 ('SP001',   N'Trứng',            N'Trứng vĩ 6 lốc',        20000 ,15),
 ('SP002',   N'Sữa',              N'Thùng sữa Vinamilk',   100000 ,20),
-('SP003',   N'Mì tôm',           N'Thùng mì tôm hảo hảo', 120000 ,25);
+('SP003',   N'Mì tôm',           N'Thùng mì tôm hảo hảo', 120000 ,25),
+('SP004',   N'Trái cây',         N'Trái cây đóng hộp',    150000, 50);
 
 -- INSERT INTO DONHANG
 INSERT INTO DONHANG VALUES
 ('DH001', '2022-02-28', N'Đang giao' ,  40000, 'KH001', 'SP001'),
 ('DH002', '2022-01-27', N'Đang giao',  200000, 'KH002', 'SP002'),
 ('DH003','2022-03-05',N'Đang giao',120000,'KH001','SP003'),
-('DH004','2022-03-06',N'Đã giao',240000,'KH001','SP003');
+('DH004','2022-03-06',N'Đã giao',240000,'KH001','SP003'),
+('DH005','2022-03-06',N'Đã giao',150000,'KH001','SP004');
 
 -- INSERT INTO CHITETHOADON
 INSERT INTO CHITIETHOADON VALUES
 ('CT001',2,20000,40000,'DH001','SP001'),
 ('CT002',2,100000,200000,'DH002','SP002'),
 ('CT003',1,120000,120000,'DH003','SP003'),
-('CT004',2,120000,240000,'DH004','SP003');
+('CT004',2,120000,240000,'DH004','SP003'),
+('CT005',1,150000,150000,'DH005','SP004');
+
 
 -- VIEW: Hiển thị thông tin của khách hàng và đơn hàng đã mua 
 CREATE VIEW V_DONHANG
@@ -120,7 +124,7 @@ GO
 
 EXEC sp_Status 'DH004'
 -- PROCEDURE: Kiểm tra khách hàng bất kỳ mua sản phẩm nào chưa, hiển thị tất cả sản phẩm đã mua
-CREATE PROC sp_Order(@MaKH NVARCHAR(100))
+ALTER PROC sp_Order(@MaKH NVARCHAR(100))
 AS
 BEGIN
    IF(@MaKH NOT IN (SELECT MaKH FROM CUSTOMER))
@@ -128,7 +132,7 @@ BEGIN
    ELSE
    BEGIN
       DECLARE @MaDH NVARCHAR(100), @MaSP NVARCHAR(100), @Count int, @SoLuong int
-      SELECT @Count = COUNT(MaDH) FROM DONHANG WHERE MaKH = @MaKH GROUP BY MaSP
+      SELECT @Count = COUNT(DISTINCT MaSP) FROM DONHANG WHERE MaKH = @MaKH
       IF(@Count <= 0)
          PRINT N'Khách hàng chưa mua sản phẩm nào.'
       ELSE
@@ -148,7 +152,6 @@ END
 GO
 
 EXEC sp_Order'KH001'
-
 
 GO
 
@@ -184,8 +187,3 @@ GO
 SELECT * FROM dbo.uf_muaNhieuNhat()
 
 GO
-
-
-
-
-
