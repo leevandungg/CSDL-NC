@@ -128,7 +128,7 @@ BEGIN
    ELSE
    BEGIN
       DECLARE @MaDH NVARCHAR(100), @MaSP NVARCHAR(100), @Count int, @SoLuong int
-      SELECT @Count = COUNT(MaDH) FROM DONHANG WHERE MaKH = @MaKH
+      SELECT @Count = COUNT(MaDH) FROM DONHANG WHERE MaKH = @MaKH GROUP BY MaSP
       IF(@Count <= 0)
          PRINT N'Khách hàng chưa mua sản phẩm nào.'
       ELSE
@@ -136,8 +136,8 @@ BEGIN
 	     PRINT N'Khách hàng ' + @MaKH + N' đã mua sản phẩm : '
          WHILE @Count > 0
          BEGIN
-            SELECT @MaDH = MaDH, @MaSP = MaSP FROM DONHANG WHERE MaKH = @MaKH ORDER BY MaDH DESC OFFSET (@Count - 1) ROWS FETCH NEXT 1 ROWS ONLY;
-			SELECT @SoLuong = SoLuong FROM CHITIETHOADON WHERE MaDH = @MaDH
+            SELECT @MaSP = MaSP FROM DONHANG WHERE MaKH = @MaKH GROUP BY MaSP ORDER BY MaSP DESC OFFSET (@Count - 1) ROWS FETCH NEXT 1 ROWS ONLY;
+			SELECT @SoLuong = SUM(CHITIETHOADON.SoLuong) FROM CHITIETHOADON JOIN DONHANG ON DONHANG.MaDH = CHITIETHOADON.MaDH WHERE CHITIETHOADON.MaSP = @MaSP and DONHANG.MaKH = @MaKH
 	        PRINT  @MaSP+ N' - '+CAST(@SoLuong as varchar(100))+ N' sản phẩm'
 	        SET @Count = @Count - 1;
          END
@@ -147,7 +147,8 @@ END
 
 GO
 
-EXEC sp_Vidu2 'KH001'
+EXEC sp_Order'KH001'
+
 
 GO
 
