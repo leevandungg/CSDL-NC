@@ -111,16 +111,23 @@ SELECT * FROM V_InfoOrder
 GO
 
 -- PROCEDURE: Kiểm tra trạng thái của một đơn hàng
-CREATE PROC sp_Status(@mahang NVARCHAR(100))
+ALTER PROC sp_Status(@mahang NVARCHAR(100))
 AS
 BEGIN
-	 DECLARE @trangthai NVARCHAR(100)
-	 SELECT @trangthai=Trangthai
-	 FROM DONHANG
-	 WHERE MaDH = @mahang
-	 PRINT @mahang+N' có trạng thái là: '+@trangthai
+     IF(@mahang NOT IN(SELECT MaDH FROM DONHANG))
+	 PRINT N'Đơn hàng không tồn tại.'
+	 ELSE
+	    BEGIN
+	       DECLARE @trangthai NVARCHAR(100)
+	       SELECT @trangthai=Trangthai
+	       FROM DONHANG
+	       WHERE MaDH = @mahang
+	       PRINT @mahang+N' có trạng thái là: '+@trangthai
+	     END
 END
 GO
+
+EXEC sp_Status 'DH006'
 
 EXEC sp_Status 'DH004'
 -- PROCEDURE: Kiểm tra khách hàng bất kỳ mua sản phẩm nào chưa, hiển thị tất cả sản phẩm đã mua
